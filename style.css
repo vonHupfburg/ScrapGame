@@ -1,0 +1,16 @@
+.tile{
+  border:1px solid RGB(30,30,30);
+  height: 50px;
+  width: 50px;
+  background: RGB(255,255,255);
+  display: inline-block;
+  margin: 1px;
+  position: absolute;
+  left: 0px;
+  top: 0px;
+  text-align: center;
+}
+
+h1 {
+  color: rpg(155, 100, 100);
+}
