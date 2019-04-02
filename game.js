@@ -11,21 +11,17 @@ var trashMaximum = 10000; // Sets the amount of trash to distribute in the game.
 var trashMinimum = 0; // The minimum amount of trash on a tile.
 var trashVariance = 1500; // The maximum that can be added to a tile at random for higher variance.
 var trashDistributionPower = 1.25; // Lower values will result in more evenly distributed trash. Higher values push trash to the edges of the map.
-// Starting square cannot be column 0, 1, 2 or column 7, 8, 9.
-// Starting row cannot be row 0, 1, 2 or column 7, 8, 9.
-var startingRow = 3 + Math.floor(Math.random()*(maxRows-3));
-var startingColumn = 3 + Math.floor(Math.random()*(maxColumns-3));
-// Clear this many cells INCLUDING the starting cell.
-var startingClearCells = 4;
+var startingRow = 3 + Math.floor(Math.random()*(maxRows-3)); // Starting square cannot be column 0, 1, 2 or column 7, 8, 9.
+var startingColumn = 3 + Math.floor(Math.random()*(maxColumns-3)); // Starting row cannot be row 0, 1, 2 or column 7, 8, 9.
+var startingClearCells = 4; // Clear this many cells INCLUDING the starting cell.
 
 // CLLASSES
-
 class InGameTile {
   // InGametile points to an object that is drawn and updated on events.
   // InGametile also holds some information about itself.
   constructor(whichRow, whichColumn) {
     // TILE DECLEARATION
-    this.tileIndex = 0 // Points to the array index. Declearation is waiting for a function defintion.
+    this.tileIndex = 0; // Waits for a function declaration. Stores the index of the tile inside the tileArray.
     this.row = whichRow; // Tells you which row this grid element sits in.
     this.column = whichColumn; // Tells you which column this grid element sits in.
     this.trashAmount = trashMaximum; // Amount of trash on tile.
@@ -54,7 +50,7 @@ function gridEl_updateTrash(whichTile) {
   // Color the grid based on how full of trash it is.
   var tempReal = 0;
   if (whichTile.trashAmount !== 0){
-    tempReal = 90 - 40 * (whichTile.trashAmount / trashMaximum); // Minimum gray is 30%. Maximum gray is 90%.
+    tempReal = 90 - 40 * (whichTile.trashAmount / trashMaximum); // Minimum gray is 50%. Maximum gray is 90%.
   } else {
     tempReal = 100;
   }
@@ -109,7 +105,7 @@ function gridEl_removeTrash(whichTile, whichAmount) {
 }
 
 function gridEl_getDistance(whichCellA, whichCellB){
-  // Takes two cells are returns their distance.
+  // Takes two cells and returns their distance.
   var tilesRowDistance = Math.abs(whichCellA.row - whichCellB.row);
   tilesRowDistance = tilesRowDistance.toFixed(2);
   var tilesColumnDistance = Math.abs(whichCellA.column - whichCellB.column);
@@ -129,7 +125,7 @@ for (var indexColumns = 0; indexColumns < maxColumns; indexColumns++) {
     var locX = startDrawX + 50 * indexColumns // Sets new tile's X location.
     var locY = startDrawY + 50 * indexRows // Sets new tile's Y location.
     tileArray.push(new InGameTile(indexRows, indexColumns));
-    tileArray[gridEl_convertLocToIndex(indexRows, indexColumns)].index = gridEl_convertLocToIndex(indexRows, indexColumns);
+    tileArray[gridEl_convertLocToIndex(indexRows, indexColumns)].tileIndex = gridEl_convertLocToIndex(indexRows, indexColumns);
   }
 }
 // Null variables.
@@ -144,16 +140,11 @@ for (var indexTile = 0; indexTile < tileArray.length; indexTile++) {
     // Find highest distance.
     if (gridEl_getDistance(startingCell, tileArray[indexTile]) > tempReal) {
       tempReal = gridEl_getDistance(startingCell, tileArray[indexTile]);
-      console.log(tempReal);
     }
 }
 
-console.log(tempReal);
-
 for (var indexTile = 0; indexTile < tileArray.length; indexTile++) {
     // Allocate trash.
-    tileArray[indexTile].trashAmount = 1000;
-    console.log(gridEl_getDistance(startingCell, tileArray[indexTile]) / tempReal);
     tileArray[indexTile].trashAmount = trashMinimum + (trashMaximum - trashMinimum - trashVariance) * (gridEl_getDistance(startingCell, tileArray[indexTile]) / tempReal) + Math.random() * trashVariance;
     gridEl_updateTrash(tileArray[indexTile]);
   }
@@ -174,5 +165,5 @@ while (startingClearCells !== 0) {
       var neighbour = gridEl_getRandomNeighbour(tileArray[tempIndex]);
   }
   // Call next clear.
-  tempIndex = neighbour.index;
+  tempIndex = neighbour.tileIndex;
 }
