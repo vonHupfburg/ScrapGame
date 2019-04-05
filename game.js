@@ -34,6 +34,13 @@ class InGameTile {
     this.gridRepresentator.style.left = locX + "px"; // Locks object at provided X.
     this.gridRepresentator.style.top = locY + "px"; // Locks object at provided Y.
   }
+
+  addHouse() {
+    var img = document.createElement("img");
+    img.src = "images/tree.png";
+    this.gridRepresentator.appendChild(img);
+  }
+
 }
 
 // FLOURISH / COSMETIC FUNCTIONS
@@ -167,3 +174,6 @@ while (startingClearCells !== 0) {
   // Call next clear.
   tempIndex = neighbour.tileIndex;
 }
+
+
+tileArray[0].addHouse();

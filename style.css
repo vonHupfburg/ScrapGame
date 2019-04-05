@@ -11,6 +11,13 @@
   text-align: center;
 }
 
+.tile img {
+  display: block;
+  position: absolute;
+  top: 0;
+  width: 100%;
+}
+
 h1 {
   color: rpg(155, 100, 100);
 }
