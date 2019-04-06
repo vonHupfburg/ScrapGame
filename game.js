@@ -3,23 +3,23 @@
 maxColumns = 10;
 maxRows = 10;
 startDrawX = 150;
-startDrawY = 300;
+startDrawY = 400;
 var tileArray = [];
 
 // GLOBALS of BALANCE.
-var trashMaximum = 10000; // Sets the amount of trash to distribute in the game.
-var trashMinimum = 0; // The minimum amount of trash on a tile.
+var trashMaximum = 10000; // The maximum amount of trash that can be on a tile.
+var trashMinimum = 500; // The minimum amount of trash that can be on a tile.
 var trashVariance = 1500; // The maximum that can be added to a tile at random for higher variance.
 var trashDistributionPower = 1.25; // Lower values will result in more evenly distributed trash. Higher values push trash to the edges of the map.
-var startingRow = 3 + Math.floor(Math.random()*(maxRows-3)); // Starting square cannot be column 0, 1, 2 or column 7, 8, 9.
-var startingColumn = 3 + Math.floor(Math.random()*(maxColumns-3)); // Starting row cannot be row 0, 1, 2 or column 7, 8, 9.
+var startingRow = 3 + Math.floor(Math.random()*(maxRows-3)); // Starting square cannot be column 0, 1, 2 or column (n-2), (n-1) and (n) where n is the number of rows in the game.
+var startingColumn = 3 + Math.floor(Math.random()*(maxColumns-3)); // Starting row cannot be row 0, 1, 2 or column (n-2), (n-1) and (n) where n is the number of columns in the game.
 var startingClearCells = 4; // Clear this many cells INCLUDING the starting cell.
 
 // CLLASSES
 class InGameTile {
   // InGametile points to an object that is drawn and updated on events.
   // InGametile also holds some information about itself.
-  constructor(whichRow, whichColumn) {
+  constructor(whichRow, whichColumn, locX, locY) {
     // TILE DECLEARATION
     this.tileIndex = 0; // Waits for a function declaration. Stores the index of the tile inside the tileArray.
     this.row = whichRow; // Tells you which row this grid element sits in.
@@ -122,58 +122,66 @@ function gridEl_getDistance(whichCellA, whichCellB){
   return distanceFactor
 }
 
-// GAMEPLAY
-// Sets up the game using the objects and functions defined above.
-
-// GAMEPLAY: GET A GRID.
-// Create a grid.
-for (var indexColumns = 0; indexColumns < maxColumns; indexColumns++) {
-  for (var indexRows = 0; indexRows < maxRows; indexRows++) {
-    var locX = startDrawX + 50 * indexColumns // Sets new tile's X location.
-    var locY = startDrawY + 50 * indexRows // Sets new tile's Y location.
-    tileArray.push(new InGameTile(indexRows, indexColumns));
-    tileArray[gridEl_convertLocToIndex(indexRows, indexColumns)].tileIndex = gridEl_convertLocToIndex(indexRows, indexColumns);
+function createTheGrid() {
+  // Takes from global declearation: maxRows and maxColumns.
+  // Creates a maxColumns by maxRows large grid.
+  for (var indexColumns = 0; indexColumns < maxColumns; indexColumns++) {
+    for (var indexRows = 0; indexRows < maxRows; indexRows++) {
+      var locX = startDrawX + 50 * indexColumns // Sets new tile's X location.
+      var locY = startDrawY + 50 * indexRows // Sets new tile's Y location.
+      tileArray.push(new InGameTile(indexRows, indexColumns, locX, locY));
+      tileArray[gridEl_convertLocToIndex(indexRows, indexColumns)].tileIndex = gridEl_convertLocToIndex(indexRows, indexColumns);
+    }
   }
 }
-// Null variables.
-locX = 0
-locY = 0
-// End.
 
-// Random distribution,
-var tempReal = 0;
-var startingCell = tileArray[gridEl_convertLocToIndex(startingRow, startingColumn)];
-for (var indexTile = 0; indexTile < tileArray.length; indexTile++) {
-    // Find highest distance.
-    if (gridEl_getDistance(startingCell, tileArray[indexTile]) > tempReal) {
-      tempReal = gridEl_getDistance(startingCell, tileArray[indexTile]);
+function randomTrashOnGrid() {
+  // Takes from global declearation: trashMinimum, trashMaximum, trashVariance, startingRow, startingColumn.
+  // Adds trash to each tile of the grid.
+  // Tile cannot have less than trashMinimum trash and cannot have more than trashMaximum trash.
+  // The difference between trashMaximum and trashMinimum is handled in a dual manner:
+  // (1) A random amount between 0 and trashVariance is added at random.
+  // (2) The remaining trash (trashMaximum - trashMinimum - trashVariance) is added based on the distance of starting cell and the cell of current iteration.
+  var tempReal = 0;
+  var startingCell = tileArray[gridEl_convertLocToIndex(startingRow, startingColumn)];
+  for (var indexTile = 0; indexTile < tileArray.length; indexTile++) {
+      // Find highest distance.
+      if (gridEl_getDistance(startingCell, tileArray[indexTile]) > tempReal) {
+        tempReal = gridEl_getDistance(startingCell, tileArray[indexTile]);
+      }
+  }
+
+  for (var indexTile = 0; indexTile < tileArray.length; indexTile++) {
+      // Allocate trash.
+      tileArray[indexTile].trashAmount = trashMinimum + (trashMaximum - trashMinimum - trashVariance) * (gridEl_getDistance(startingCell, tileArray[indexTile]) / tempReal) + Math.random() * trashVariance;
+      gridEl_updateTrash(tileArray[indexTile]);
     }
 }
 
-for (var indexTile = 0; indexTile < tileArray.length; indexTile++) {
-    // Allocate trash.
-    tileArray[indexTile].trashAmount = trashMinimum + (trashMaximum - trashMinimum - trashVariance) * (gridEl_getDistance(startingCell, tileArray[indexTile]) / tempReal) + Math.random() * trashVariance;
-    gridEl_updateTrash(tileArray[indexTile]);
-  }
-
-// GAMEPLAY: CLEAR N CELLS.
-// Clear starting cell plus 3 neighbours of starting cell.
-var tempIndex = gridEl_convertLocToIndex(startingRow, startingColumn);
-while (startingClearCells !== 0) {
-  // Clears the current cell than picks the current cell's neighbour. May need to reiterate when it finds an already cleared cell.
-  if (tileArray[tempIndex].trashAmount !== 0) {
-  gridEl_removeTrash(tileArray[tempIndex], tileArray[tempIndex].trashAmount);
-  startingClearCells = startingClearCells - 1;
+function clearStartingCells() {
+  // Takes from global decleartation: startingRow, startingColumn, startingClearCells
+  // Clears startingClearCells number of tiles, starting with the tile in startingRow and startingColumn.
+  // Then takes a neighbouring cell and clears that too, until the player has the desired number of free cells.
+  var tempIndex = gridEl_convertLocToIndex(startingRow, startingColumn);
+  while (startingClearCells !== 0) {
+    // Clears the current cell than picks the current cell's neighbour. May need to reiterate when it finds an already cleared cell.
+    if (tileArray[tempIndex].trashAmount !== 0) {
+    gridEl_removeTrash(tileArray[tempIndex], tileArray[tempIndex].trashAmount);
+    startingClearCells = startingClearCells - 1;
+      }
+    // Picks a random nearby neighbour to clear.
+    var neighbour = gridEl_getRandomNeighbour(tileArray[tempIndex]);
+    // If the random nieghbour is already empty: Try picking again.
+    while (neighbour.trashAmount === 0) {
+        var neighbour = gridEl_getRandomNeighbour(tileArray[tempIndex]);
     }
-  // Picks a random nearby neighbour to clear.
-  var neighbour = gridEl_getRandomNeighbour(tileArray[tempIndex]);
-  // If the random nieghbour is already empty: Try picking again.
-  while (neighbour.trashAmount === 0) {
-      var neighbour = gridEl_getRandomNeighbour(tileArray[tempIndex]);
+    // Call next clear.
+    tempIndex = neighbour.tileIndex;
   }
-  // Call next clear.
-  tempIndex = neighbour.tileIndex;
 }
 
-
+// GAMEPLAY CALLS
+createTheGrid();
+randomTrashOnGrid();
+clearStartingCells();
 tileArray[0].addHouse();
