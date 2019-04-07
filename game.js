@@ -10,3 +10,7 @@ function Click() {
     document.getElementById("myList").appendChild(li);
   }
 }
+
+function takesNothing() {
+  return "nothing"
+}
