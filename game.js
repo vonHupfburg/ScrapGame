@@ -1,9 +1,9 @@
 // GLOBALS
 // GLOBALS of GRID.
-maxColumns = 10;
-maxRows = 10;
-startDrawX = 150;
-startDrawY = 400;
+var maxColumns = 10;
+var maxRows = 10;
+var startDrawX = 150;
+var startDrawY = 400;
 var tileArray = [];
 
 // GLOBALS of BALANCE.
@@ -19,20 +19,31 @@ var startingClearCells = 4; // Clear this many cells INCLUDING the starting cell
 class InGameTile {
   // InGametile points to an object that is drawn and updated on events.
   // InGametile also holds some information about itself.
-  constructor(whichRow, whichColumn, locX, locY) {
-    // TILE DECLEARATION
-    this.tileIndex = 0; // Waits for a function declaration. Stores the index of the tile inside the tileArray.
-    this.row = whichRow; // Tells you which row this grid element sits in.
-    this.column = whichColumn; // Tells you which column this grid element sits in.
-    this.trashAmount = trashMaximum; // Amount of trash on tile.
+  constructor(row, column, locX, locY) {
+    this.tileIndex; // Waits for a function declaration. Stores the index of the tile inside the tileArray.
+    this.row = row; // Tells you which row this grid element sits in.
+    this.column = column; // Tells you which column this grid element sits in.
+    this.trashAmount; // Waiting for a function defintion.
+    this.locX = locX; // The x position of this tile on the page.
+    this.locY = locY; // The y position of this tile on the page.
+    this.gridRepresentator = this.createGridRepresentator(); // Creates a grid element for the corresponding tile.
+    this.trashDisplay = this.createTrashDisplay();
+  }
 
-    // Creates a grid element for the corresponding tile.
-    this.gridRepresentator = document.createElement("DIV");
-    grid.appendChild(this.gridRepresentator);
-    this.gridRepresentator.innerHTML = "";
-    this.gridRepresentator.className = "tile"; // Formats the InGameTile object per style.css class "tile".
-    this.gridRepresentator.style.left = locX + "px"; // Locks object at provided X.
-    this.gridRepresentator.style.top = locY + "px"; // Locks object at provided Y.
+  createGridRepresentator() {
+    var gridRepresentator = document.createElement("DIV");
+    grid.appendChild(gridRepresentator);
+    gridRepresentator.innerHTML = "";
+    gridRepresentator.className = "tile"; // Formats the InGameTile object per style.css class "tile".
+    gridRepresentator.style.left = this.locX + "px"; // Locks object at provided X.
+    gridRepresentator.style.top = this.locY + "px"; // Locks object at provided Y.
+    return gridRepresentator
+  }
+
+  createTrashDisplay() {
+    var tempParagraph = document.createElement("p");
+    this.gridRepresentator.appendChild(tempParagraph);
+    return tempParagraph;
   }
 
   addHouse() {
@@ -40,18 +51,17 @@ class InGameTile {
     img.src = "images/tree.png";
     this.gridRepresentator.appendChild(img);
   }
-
 }
 
 // FLOURISH / COSMETIC FUNCTIONS
 // Without which the game will run but will heavily impact user experience.
-function gridEl_updateTrash(whichTile) {
+function gridElUpdateTrash(whichTile) {
   // Change the trash display. This is intended to be temporary.
   if (whichTile.trashAmount !== 0) {
-    whichTile.gridRepresentator.innerHTML = Math.floor(whichTile.trashAmount);
+    whichTile.trashDisplay.innerHTML = Math.floor(whichTile.trashAmount);
   } else {
     // Should later call the clear function.
-    whichTile.gridRepresentator.innerHTML = "";
+    whichTile.trashDisplay.innerHTML = "";
   }
 
   // Color the grid based on how full of trash it is.
@@ -108,7 +118,7 @@ function gridEl_removeTrash(whichTile, whichAmount) {
     whichTile.trashAmount = 0;
   }
   // Call the user interface function that updates this cell, since its trash amount was changed.
-  gridEl_updateTrash(whichTile);
+  gridElUpdateTrash(whichTile);
 }
 
 function gridEl_getDistance(whichCellA, whichCellB){
@@ -154,7 +164,7 @@ function randomTrashOnGrid() {
   for (var indexTile = 0; indexTile < tileArray.length; indexTile++) {
       // Allocate trash.
       tileArray[indexTile].trashAmount = trashMinimum + (trashMaximum - trashMinimum - trashVariance) * (gridEl_getDistance(startingCell, tileArray[indexTile]) / tempReal) + Math.random() * trashVariance;
-      gridEl_updateTrash(tileArray[indexTile]);
+      gridElUpdateTrash(tileArray[indexTile]);
     }
 }
 
@@ -184,4 +194,6 @@ function clearStartingCells() {
 createTheGrid();
 randomTrashOnGrid();
 clearStartingCells();
+gridEl_removeTrash(tileArray[10],-10);
+
 tileArray[0].addHouse();
