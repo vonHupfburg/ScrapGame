@@ -30,9 +30,27 @@ class Tile {
   }
 
   addHouse() { // TODO: Actually use an interation of this.
-    var img = document.createElement("img");
-    img.src = "images/tree.png";
-    this.tileRepresentator.appendChild(img);
+    if (this.row === 5) {
+      if (this.column === 5) {
+        var img = document.createElement("img");
+        img.src = "https://i20.servimg.com/u/f20/11/29/90/94/blue_h10.jpg";
+        this.tileRepresentator.appendChild(img);
+      }
+    }
+    if (this.row === 6) {
+      if (this.column === 2) {
+        var img = document.createElement("img");
+        img.src = "https://i20.servimg.com/u/f20/11/29/90/94/blue_h11.jpg";
+        this.tileRepresentator.appendChild(img);
+      }
+    }
+    if (this.row === 2) {
+      if (this.column === 3) {
+        var img = document.createElement("img");
+        img.src = "https://i20.servimg.com/u/f20/11/29/90/94/blue_h11.jpg";
+        this.tileRepresentator.appendChild(img);
+      }
+    }
   }
 
   updateTrash() {
@@ -84,7 +102,7 @@ class Tile {
     return distanceFactor
   }
 
-  createInitialTrash(startingTile, maxRows, maxColumns) { //TODO: See if this can be a method of grid --OR-- see if randomTrashOnGrid can be a method of tile. These two should be in the same class.
+  createInitialTrash(startingTile, maxRows, maxColumns, tileMatrix) { //TODO: See if this can be a method of grid --OR-- see if randomTrashOnGrid can be a method of tile. These two should be in the same class.
     // A random amount between 0 and trashVariance is added at random.
     // The remaining trash (trashMaximum - trashMinimum - trashVariance) is added based on the distance of starting cell and the cell of current iteration.
     var tempReal = 0;
@@ -92,7 +110,7 @@ class Tile {
         for (var indexTileColumns = 0; indexTileColumns < maxColumns; indexTileColumns++) {
           // Find highest distance.
           if (this.getDistance(startingTile) > tempReal) {
-            tempReal = this.getDistance(startingTile);
+            tempReal = tileMatrix[indexTileRows][indexTileColumns].getDistance(startingTile);
           }
         }
     }
@@ -143,7 +161,7 @@ class Grid {
     for (var indexTileRows = 0; indexTileRows < this.maxRows; indexTileRows++) {
         for (var indexTileColumns = 0; indexTileColumns < this.maxRows; indexTileColumns++) {
           var currentTile = this.tileMatrix[indexTileRows][indexTileColumns];
-          currentTile.createInitialTrash(this.tileMatrix[this.startingRow][this.startingColumn], this.maxRows, this.maxColumns);
+          currentTile.createInitialTrash(this.tileMatrix[this.startingRow][this.startingColumn], this.maxRows, this.maxColumns, this.tileMatrix);
         }
     }
   }
@@ -193,5 +211,4 @@ class Grid {
   }
 }
 
-// GAMEPLAY CALLS
 var grid = new Grid();
