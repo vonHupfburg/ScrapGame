@@ -1,4 +1,8 @@
+<<<<<<< Updated upstream
 class Tile {
+=======
+ Tile {
+>>>>>>> Stashed changes
   constructor(row, column, locX, locY) {
     this.row = row; // Tells you which row this tileMatrix element sits in.
     this.column = column; // Tells you which column this tileMatrix element sits in.
