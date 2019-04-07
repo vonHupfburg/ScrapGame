@@ -1,16 +1,12 @@
-var a = 0
-document.getElementById('button').onclick = Click
-function Click() {
-  document.getElementById('button').innerHTML = a
-  a = a + 1
-  for (var i = 0; i < a; i++){
-    var li = document.createElement("LI");
-    var textnode = document.createTextNode("Cica");
-    li.appendChild(textnode)
-    document.getElementById("myList").appendChild(li);
-  }
-}
+var htmlGrid = document.getElementById("htmlGrid");
 
-function takesNothing() {
-  return "nothing"
+// Create pseudoGrid.
+for (var indexRows = 0; indexRows < 10; indexRows++) {
+  for (var indexColumns = 0; indexColumns < 10; indexColumns++) {
+    var gridElement = document.createElement("div");
+    gridElement.className = "tile";
+    htmlGrid.appendChild(gridElement);
+    gridElement.style.top = (450 + 50 * indexRows) + "px" ;
+    gridElement.style.left = (150 + 50 * indexColumns) + "px";
+  }
 }
