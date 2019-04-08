@@ -18,18 +18,16 @@
   width: 100%;
 }
 
-.rollInterface {
+.slottedInterface {
   border: 3px solid RGB(30,30,30);
-  height: 190px;
-  width: 400px;
+  height: 150px;
+  width: 430px;
   background: RGB(255, 255, 220);
   border-radius: 5px 15px;
   position: absolute;
-  left: 50px;
-  top: 100px;
 }
 
-.rollSlot {
+.slot {
   border:1px solid RGB(30,30,30);
   height: 50px;
   width: 50px;
