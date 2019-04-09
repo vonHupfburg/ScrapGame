@@ -46,51 +46,53 @@ class RollInterface extends SlottedInterface {
   constructor(htmlObject, header, locX, locY){
       super(htmlObject, header, locX, locY);
       this.rollButton = this.createRollButton();
-      this.rollChanceRare = 30;
-      this.rollChanceEpic = 15;
-      this.rollChanceLgnd = 2.5;
+      // The chances of rolling a given rarity:
+      this.rollChanceRare = 30; // %
+      this.rollChanceEpic = 15; // %
+      this.rollChanceLgnd = 2.5; //%
       this.rollChanceCmmn = 100 - (this.rollChanceEpic + this.rollChanceRare + this.rollChanceLgnd); //%
+      // The cost of rolling:
+      this.totalRollCost = 80;
+      this.addedRollCostConstant = 20;
+      this.addedRollCostConstantGrowth = 5;
+      this.currentRollCost = this.totalRollCost;
+      this.rollCostDecay = 5; // The rate at which your roll cost decreases per second.
+      this.numFrames = 5; // Frames per second of roll button.
+      this.rollDelay = 2000; // The number of milliseconds after a roll where the player can't reroll again.
+      // Misc
+      this.rollIsDisabled = false;
+      this.rollTimer;
       this.roll();
   }
 
   createRollButton() {
     var tempButton = document.createElement("BUTTON");
-    tempButton.textContent = "Roll"
+    tempButton.textContent = "Roll (0CM)"
     this.header.appendChild(tempButton);
+    tempButton.addEventListener("click", this.reroll.bind(this));
     return tempButton
-  }
-
-  modifyRollButton() {
-    this.rollButton.textContent = "Roll (245 CM)"; // TODO: actually take stuff;
-  }
-
-  enableRollButton() {
-    this.rollbutton.disabled = false;
   }
 
   disableRollButton() {
     this.rollButton.disabled = true;
   }
 
-  roll() {
-    // Reroll entire Available Buildings.
-    for (var indexSlots = 0; indexSlots < this.maxSlots; indexSlots++) {
-      var tempBuilding = this.getRandomBuildingByRarity(this.rollRarity());
-      this.slotArray[indexSlots].takeNewContent(tempBuilding);
-    }
+  enableRollButton() {
+      this.rollButton.disabled = false;
   }
 
-  rollRarity() {
-    var tempReal = Math.random() * 100;
-    if (tempReal < this.rollChanceLgnd) { // roll is within (0, 2.5)
-      return "lgnd"
-    } else if (tempReal >= this.rollChanceLgnd & (tempReal < (this.rollChanceLgnd + this.rollChanceEpic))) { // roll is within (2.5, 17.5)
-      return "epic"
-    } else if ((tempReal >= (this.rollChanceLgnd + this.rollChanceEpic)) & (tempReal < (this.rollChanceLgnd + this.rollChanceEpic + this.rollChanceRare))) { // roll is within (17.5, 47.5)
-      return "rare"
-    } else { // roll is within (47.5, 100)
-      return "cmmn"
-    }
+  getNewRollCost() {
+    var tempReal = 0;
+    tempReal = this.totalRollCost + this.addedRollCostConstant;
+    this.addedRollCostConstant = this.addedRollCostConstant + this.addedRollCostConstantGrowth;
+    return tempReal;
+  }
+
+  getRandomBuildingByRarity(whichRarity) {
+    var rarityArray = this.getRarityArray(whichRarity);
+    var tempInteger = this.getRandomInteger(0, rarityArray.length);
+    var tempBuilding = rarityArray[tempInteger]
+    return tempBuilding;
   }
 
   getRandomInteger(minValue, maxValue) {
@@ -112,11 +114,81 @@ class RollInterface extends SlottedInterface {
     return wantThisArray
   }
 
-  getRandomBuildingByRarity(whichRarity) {
-    var rarityArray = this.getRarityArray(whichRarity);
-    var tempInteger = this.getRandomInteger(0, rarityArray.length);
-    var tempBuilding = rarityArray[tempInteger]
-    return tempBuilding;
+  modifyRollButton() {
+    if (this.currentRollCost > 0) {
+      this.rollButton.textContent = "Reroll (" + Math.ceil(this.currentRollCost) + "CM)";
+    } else {
+      this.rollButton.textContent = "Reroll (Free)";
+    }
+    if ((this.currentRollCost > gameplayCM) || (this.rollIsDisabled === true)) {
+      this.disableRollButton()
+    } else {
+      this.enableRollButton();
+    }
+  }
+
+  nextRollDelay() {
+    this.rollIsDisabled = true;
+    this.modifyRollButton();
+    window.setTimeout(this.nextRollDelayCallback.bind(this), this.rollDelay);
+  }
+
+  nextRollDelayCallback() {
+    this.rollIsDisabled = false;
+    this.rollCountdown();
+  }
+
+  reduceRollCost() {
+    // TempRollCostDecay calculates the player's actual roll cost decay based on their gameplayRollDecayIncrease.
+    // Example. the player has 25 gameplayRollDecayIncrease from 25 lv1 Labs.
+    // (100 + gameplayRollDecayIncrease) divided by 100 gives a multiplier: eg. 1.25.
+    // Actual roll decay becomes 1.25 * 5 = 6.25.
+    var tempRollCostDecay = ((100 + gameplayRollDecayIncrease)/100) * this.rollCostDecay;
+    if ((this.currentRollCost - (tempRollCostDecay/this.numFrames)) > 0) {
+      this.currentRollCost = this.currentRollCost - (tempRollCostDecay/this.numFrames);
+    } else {
+      this.currentRollCost = 0;
+    }
+  }
+
+  rollCountdown() {
+    this.reduceRollCost();
+    this.modifyRollButton();
+    if (this.currentRollCost > 0) {
+      this.rollTimer = window.setTimeout(this.rollCountdown.bind(this) , 1000/this.numFrames);
+    }
+  }
+
+  reroll() {
+    //This function is the callback of eventListener "click" added to rollButton.
+    (console.log(this));
+    changeCM(-this.currentRollCost);
+    clearTimeout(this.rollTimer);
+    this.roll();
+  }
+
+  roll() {
+    for (var indexSlots = 0; indexSlots < this.maxSlots; indexSlots++) {
+      var tempBuilding = this.getRandomBuildingByRarity(this.rollRarity());
+      this.slotArray[indexSlots].takeNewContent(tempBuilding);
+    }
+    this.totalRollCost = this.getNewRollCost();
+    this.currentRollCost = this.totalRollCost;
+    this.nextRollDelay();
+    //this.modifyRollButton();
+  }
+
+  rollRarity() {
+    var tempReal = Math.random() * 100;
+    if (tempReal < this.rollChanceLgnd) { // roll is within (0, 2.5)
+      return "lgnd"
+    } else if (tempReal >= this.rollChanceLgnd & (tempReal < (this.rollChanceLgnd + this.rollChanceEpic))) { // roll is within (2.5, 17.5)
+      return "epic"
+    } else if ((tempReal >= (this.rollChanceLgnd + this.rollChanceEpic)) & (tempReal < (this.rollChanceLgnd + this.rollChanceEpic + this.rollChanceRare))) { // roll is within (17.5, 47.5)
+      return "rare"
+    } else { // roll is within (47.5, 100)
+      return "cmmn"
+    }
   }
 }
 
@@ -163,11 +235,12 @@ class Slot {
 
   takeNewContent(whichBuilding) {
     if (whichBuilding.imgLink !== "") {
+      this.htmlObject.textContent = "";
       this.renderImage(whichBuilding.imgLink);
     } else {
-      this.htmlObject.textContent = whichBuilding.handle
+      this.htmlObject.textContent = whichBuilding.handle;
     }
-    this.infoBlocOject.textContent = this.updateInfoBloc(whichBuilding.rarity, whichBuilding.costCM)
+    this.infoBlocOject.textContent = this.updateInfoBloc(whichBuilding.rarity, whichBuilding.costCM);
     console.log(whichBuilding.rarity);
   }
 
@@ -296,9 +369,10 @@ console.log(rarityArrayEpic);
 console.log(rarityArrayLgnd);
 
 // ROLL FUNCTIONALITY
+var gameplayRollDecayIncrease = 0;
+var gameplayCM = 10000;
 var rollInterface = new RollInterface(document.getElementById("htmlRollInterface"), "Available Buildings", 50, 100);
 var handInterface = new SlottedInterface(document.getElementById("htmlHandInterface"), "Placeable Buildings", 530, 100);
-var gameplayCM = 10000;
 var gameplayCMhtmlObject = document.getElementById("tempInterface");
 
 
