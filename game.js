@@ -1,13 +1,12 @@
 // SLOT INTERFACE
 class SlottedInterface{
-  constructor (htmlObject, header, locX, locY) {
+  constructor (htmlObject, headerText, locX, locY) {
     this.htmlObject = htmlObject; // The corresponding table.
     this.maxSlots = 5; // Maximum number of slots.
     this.locX = locX; // X position of the entire interface.
     this.locY = locY; // Y position of the entire interface.
     this.slotArray = this.createSlots(); // The slots belonging to this SlottedInterface.
-    this.header = header; // The header of this slotted interface.
-    this.createHeader();
+    this.header = this.createHeader(headerText); // The header of this slotted interface.
     this.reposition();
   }
 
@@ -34,11 +33,12 @@ class SlottedInterface{
     return tempSlotArray;
   }
 
-  createHeader() {
+  createHeader(headerText) {
     var tempElement = document.createElement("h2");
     this.htmlObject.appendChild(tempElement);
-    tempElement.textContent = this.header;
+    tempElement.textContent = headerText;
     tempElement.align = "center"
+    return tempElement;
   }
 }
 
@@ -54,23 +54,22 @@ class RollInterface extends SlottedInterface {
   }
 
   createRollButton() {
-
+    var tempButton = document.createElement("BUTTON");
+    tempButton.textContent = "Roll"
+    this.header.appendChild(tempButton);
+    return tempButton
   }
 
   modifyRollButton() {
-
-  }
-
-  checkRollButton() {
-
+    this.rollButton.textContent = "Roll (245 CM)"; // TODO: actually take stuff;
   }
 
   enableRollButton() {
-
+    this.rollbutton.disabled = false;
   }
 
   disableRollButton() {
-
+    this.rollButton.disabled = true;
   }
 
   roll() {
@@ -130,6 +129,7 @@ class Slot {
     this.parentHtmlObject = parentHtmlObject; // The table to which this slot belongs.
     this.infoBlocOject = this.createInfoBloc();
     this.htmlObject = this.createSlot(); // The slot object itself.
+    this.imgObject;
     this.slotContent = null;
     this.img = null; // May contain an image.
     this.reposition();
@@ -188,11 +188,14 @@ class Slot {
   }
 
   renderImage(whichImage) {
-
+    var tempImg = document.createElement("img");
+    tempImg.src = whichImage;
+    this.imgObject = tempImg;
+    this.htmlObject.appendChild(tempImg);
   }
 
   removeImage() {
-
+    this.htmlObject.removeChild(this.imgObject);
   }
 }
 
@@ -263,11 +266,11 @@ new Building("blu_gat", "rare", 200, "");
 new Building("gre_gat", "rare", 140, "");
 new Building("pur_gat", "rare", 200, "");
 // Houses:
-new Building("ora_hou", "cmmn", 100, "");
-new Building("red_hou", "epic", 300, "");
-new Building("blu_hou", "rare", 200, "");
-new Building("gre_hou", "cmmn",  70, "");
-new Building("pur_hou", "lgnd", 500, "");
+new Building("ora_hou", "cmmn", 100, "images/house_lv1_orange.jpg");
+new Building("red_hou", "epic", 300, "images/house_lv1_red.jpg");
+new Building("blu_hou", "rare", 200, "images/house_lv1_blue.jpg");
+new Building("gre_hou", "cmmn",  70, "images/house_lv1_green.jpg");
+new Building("pur_hou", "lgnd", 500, "images/house_lv1_purple.jpg");
 // Labs:
 new Building("ora_lab", "cmmn", 150, "");
 new Building("red_lab", "rare", 300, "");
