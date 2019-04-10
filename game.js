@@ -78,7 +78,7 @@ class RollInterface extends SlottedInterface {
   }
 
   enableRollButton() {
-      this.rollButton.disabled = false;
+    this.rollButton.disabled = false;
   }
 
   getNewRollCost() {
@@ -191,6 +191,26 @@ class RollInterface extends SlottedInterface {
   }
 }
 
+class HandInterface extends SlottedInterface {
+  constructor(htmlObject, header, locX, locY){
+      super(htmlObject, header, locX, locY);
+      this.availableSlots = this.maxSlots;
+  }
+
+  takeNewContent(whichBuilding){
+    var tempSlot = this.getEmptySlot();
+    tempSlot.takeNewContent(whichBuilding);
+    this.availableSlots = this.availableSlots - 1;
+  }
+
+  getEmptySlot(){
+    for (var indexSlots = 0; indexSlots < this.slotArray.length; indexSlots++){
+      if (this.slotArray[indexSlots].contentObject === null){
+        return this.slotArray[indexSlots];
+      }
+    }
+  }
+}
 
 class Slot {
   constructor(parentHtmlObject, index, locX, locY){
@@ -198,11 +218,11 @@ class Slot {
     this.locX = locX;
     this.locY = locY;
     this.parentHtmlObject = parentHtmlObject; // The table to which this slot belongs.
-    this.infoBlocOject = this.createInfoBloc();
     this.htmlObject = this.createSlot(); // The slot object itself.
-    this.imgObject;
-    this.slotContent = null;
-    this.img = null; // May contain an image.
+    this.infoBlocOject = this.createInfoBloc();
+    this.contentObject = null; // May contain a building but does not by default.
+    this.imgObject = null; // May contain an image, but does not by default.
+    this.isActive = false; // Contains a rollable element.
     this.reposition();
   }
 
@@ -233,6 +253,7 @@ class Slot {
   }
 
   takeNewContent(whichBuilding) {
+    this.contentObject = whichBuilding;
     if (whichBuilding.imgLink !== "") {
       this.htmlObject.textContent = "";
       this.renderImage(whichBuilding.imgLink);
@@ -240,6 +261,7 @@ class Slot {
       this.htmlObject.textContent = whichBuilding.handle;
     }
     this.infoBlocOject.textContent = this.updateInfoBloc(whichBuilding.rarity, whichBuilding.costCM);
+    this.isActive = true;
   }
 
   updateInfoBloc(rarity, costCM) {
@@ -267,29 +289,46 @@ class Slot {
   removeImage() {
     this.htmlObject.removeChild(this.imgObject);
   }
+
+  emptySlot() {
+    this.removeImage();
+    this.contentObject = null;
+    this.infoBlocOject.textContent = "";
+    this.isActive = false;
+  }
 }
 
 class RollSlot extends Slot {
   // These slots are situtated in Available Buildings and their content can be bought.
   constructor(parentHtmlObject, index, locX, locY){
     super(parentHtmlObject, index, locX, locY);
+    this.htmlObject.addEventListener("click", this.buyThisBuilding.bind(this));
   }
 
-  buyThisBuilding() { // TODO: This is a planned feature of RollSlot.
+
+  buyThisBuilding() {
+    if ((this.isActive === true) && (gameplayCM > this.contentObject.costCM) && (handInterface.availableSlots !== 0)){
+      changeCM(-this.contentObject.costCM);
+      this.isActive = false;
+      handInterface.takeNewContent(this.contentObject);
+      this.emptySlot();
+    }
   }
-
-
-
 }
 
 class HandSlot extends Slot {
   // These slots were already purchased and their content can sold or
   constructor(parentHtmlObject, index, locX, locY){
     super(parentHtmlObject, index, locX, locY);
+    this.htmlObject.addEventListener("click", this.sellThisBuilding.bind(this));
   }
 
-  sellThisBuilding() { // TODO: This is a planned feature of HandSlot.
-    // Sells a building and returns some CM.
+  sellThisBuilding() {
+    if (this.isActive === true){
+      changeCM(0.7 * this.contentObject.costCM);
+      handInterface.availableSlots = handInterface.availableSlots + 1;
+      this.emptySlot();
+    }
   }
 
   placeThisBuilding() { // TODO: This is a planned feature of HandSlot.
@@ -364,7 +403,7 @@ new Building("pur_bar", "epic", 450, "images/bar_lv1_purple.jpg");
 var gameplayRollDecayIncrease = 0;
 var gameplayCM = 10000;
 var rollInterface = new RollInterface(document.getElementById("htmlRollInterface"), "Available Buildings", 50, 100);
-var handInterface = new SlottedInterface(document.getElementById("htmlHandInterface"), "Placeable Buildings", 530, 100);
+var handInterface = new HandInterface(document.getElementById("htmlHandInterface"), "Placeable Buildings", 530, 100);
 var gameplayCMhtmlObject = document.getElementById("tempInterface");
 
 
