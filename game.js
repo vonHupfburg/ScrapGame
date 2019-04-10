@@ -161,7 +161,6 @@ class RollInterface extends SlottedInterface {
 
   reroll() {
     //This function is the callback of eventListener "click" added to rollButton.
-    (console.log(this));
     changeCM(-this.currentRollCost);
     clearTimeout(this.rollTimer);
     this.roll();
@@ -241,12 +240,10 @@ class Slot {
       this.htmlObject.textContent = whichBuilding.handle;
     }
     this.infoBlocOject.textContent = this.updateInfoBloc(whichBuilding.rarity, whichBuilding.costCM);
-    console.log(whichBuilding.rarity);
   }
 
   updateInfoBloc(rarity, costCM) {
     var tempInfoBloc
-    console.log(rarity);
     if (rarity === "cmmn") {
       tempInfoBloc = "Common";
     } else if (rarity === "rare") {
@@ -333,11 +330,11 @@ class Building {
 
 // COMMON BUILDINGS :
 // Gathrers:
-new Building("ora_gat", "cmmn", 100, "");
-new Building("red_gat", "cmmn", 100, "");
-new Building("blu_gat", "rare", 200, "");
-new Building("gre_gat", "rare", 140, "");
-new Building("pur_gat", "rare", 200, "");
+new Building("ora_gat", "cmmn", 100, "images/gatherer_lv1_orange.jpg");
+new Building("red_gat", "cmmn", 100, "images/gatherer_lv1_red.jpg");
+new Building("blu_gat", "rare", 200, "images/gatherer_lv1_blue.jpg");
+new Building("gre_gat", "rare", 140, "images/gatherer_lv1_green.jpg");
+new Building("pur_gat", "rare", 200, "images/gatherer_lv1_purple.jpg");
 // Houses:
 new Building("ora_hou", "cmmn", 100, "images/house_lv1_orange.jpg");
 new Building("red_hou", "epic", 300, "images/house_lv1_red.jpg");
@@ -345,28 +342,23 @@ new Building("blu_hou", "rare", 200, "images/house_lv1_blue.jpg");
 new Building("gre_hou", "cmmn",  70, "images/house_lv1_green.jpg");
 new Building("pur_hou", "lgnd", 500, "images/house_lv1_purple.jpg");
 // Labs:
-new Building("ora_lab", "cmmn", 150, "");
-new Building("red_lab", "rare", 300, "");
-new Building("blu_lab", "lgnd", 600, "");
-new Building("gre_lab", "epic", 210, "");
-new Building("pur_lab", "cmmn", 150, "");
+new Building("ora_lab", "cmmn", 150, "images/lab_lv1_orange.jpg");
+new Building("red_lab", "rare", 300, "images/lab_lv1_red.jpg");
+new Building("blu_lab", "lgnd", 600, "images/lab_lv1_blue.jpg");
+new Building("gre_lab", "epic", 210, "images/lab_lv1_green.jpg");
+new Building("pur_lab", "cmmn", 150, "images/lab_lv1_purple.jpg");
 // Powerplant:
-new Building("ora_pow", "cmmn", 125, "");
-new Building("red_pow", "rare", 250, "");
-new Building("blu_pow", "epic", 375, "");
-new Building("gre_pow", "lgnd", 350, "");
-new Building("pur_pow", "rare", 250, "");
+new Building("ora_pow", "cmmn", 125, "images/power_lv1_orange.jpg");
+new Building("red_pow", "rare", 250, "images/power_lv1_red.jpg");
+new Building("blu_pow", "epic", 375, "images/power_lv1_blue.jpg");
+new Building("gre_pow", "lgnd", 350, "images/power_lv1_green.jpg");
+new Building("pur_pow", "rare", 250, "images/power_lv1_purple.jpg");
 // Bar:
-new Building("ora_bar", "cmmn", 150, "");
-new Building("red_bar", "lgnd", 600, "");
-new Building("blu_bar", "cmmn", 150, "");
-new Building("gre_bar", "rare", 210, "");
-new Building("pur_bar", "epic", 450, "");
-
-console.log(rarityArrayCmmn);
-console.log(rarityArrayRare);
-console.log(rarityArrayEpic);
-console.log(rarityArrayLgnd);
+new Building("ora_bar", "cmmn", 150, "images/bar_lv1_orange.jpg");
+new Building("red_bar", "lgnd", 600, "images/bar_lv1_red.jpg");
+new Building("blu_bar", "cmmn", 150, "images/bar_lv1_blue.jpg");
+new Building("gre_bar", "rare", 210, "images/bar_lv1_green.jpg");
+new Building("pur_bar", "epic", 450, "images/bar_lv1_purple.jpg");
 
 // ROLL FUNCTIONALITY
 var gameplayRollDecayIncrease = 0;
