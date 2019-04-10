@@ -390,3 +390,5 @@ for (var indexRows = 0; indexRows < 10; indexRows++) {
     gridElement.style.left = (150 + 50 * indexColumns) + "px";
   }
 }
+
+// Have to change something for commit of test...
