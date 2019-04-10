@@ -23,10 +23,10 @@ class SlottedInterface{
       var tempSlotLocY = "65px"
       // Call new slots.
       if (this.htmlObject === document.getElementById("htmlRollInterface")) {
-        tempSlotArray.push(new RollSlot(this.htmlObject, indexSlots, tempSlotLocX, tempSlotLocY));
+        tempSlotArray.push(new RollSlot(this.htmlObject, tempSlotLocX, tempSlotLocY));
       }
       if (this.htmlObject === document.getElementById("htmlHandInterface")) {
-        tempSlotArray.push(new HandSlot(this.htmlObject, indexSlots, tempSlotLocX, tempSlotLocY));
+        tempSlotArray.push(new HandSlot(this.htmlObject, tempSlotLocX, tempSlotLocY));
       }
 
     }
@@ -58,8 +58,8 @@ class RollInterface extends SlottedInterface {
       this.currentRollCost = this.totalRollCost;
       this.rollCostDecay = 5; // The rate at which your roll cost decreases per second.
       this.numFrames = 5; // Frames per second of roll button.
-      this.rollDelay = 2000; // The number of milliseconds after a roll where the player can't reroll again.
       // Misc
+      this.rollDelay = 2000; // The number of milliseconds after a roll where the player can't reroll again.
       this.rollIsDisabled = false;
       this.rollTimer;
       this.roll();
@@ -67,10 +67,10 @@ class RollInterface extends SlottedInterface {
 
   createRollButton() {
     var tempButton = document.createElement("BUTTON");
-    tempButton.textContent = "Roll (0CM)"
+    tempButton.textContent = "Roll (0CM)";
     this.header.appendChild(tempButton);
     tempButton.addEventListener("click", this.reroll.bind(this));
-    return tempButton
+    return tempButton;
   }
 
   disableRollButton() {
@@ -91,13 +91,13 @@ class RollInterface extends SlottedInterface {
   getRandomBuildingByRarity(whichRarity) {
     var rarityArray = this.getRarityArray(whichRarity);
     var tempInteger = this.getRandomInteger(0, rarityArray.length);
-    var tempBuilding = rarityArray[tempInteger]
+    var tempBuilding = rarityArray[tempInteger];
     return tempBuilding;
   }
 
   getRandomInteger(minValue, maxValue) {
-    var tempInteger = minValue + Math.floor((maxValue - minValue) * Math.random())
-    return tempInteger
+    var tempInteger = minValue + Math.floor((maxValue - minValue) * Math.random());
+    return tempInteger;
   }
 
   getRarityArray(whichRarity) {
@@ -111,7 +111,7 @@ class RollInterface extends SlottedInterface {
     } else if (whichRarity === "lgnd") {
       wantThisArray = rarityArrayLgnd;
     }
-    return wantThisArray
+    return wantThisArray;
   }
 
   modifyRollButton() {
@@ -121,7 +121,7 @@ class RollInterface extends SlottedInterface {
       this.rollButton.textContent = "Reroll (Free)";
     }
     if ((this.currentRollCost > gameplayCM) || (this.rollIsDisabled === true)) {
-      this.disableRollButton()
+      this.disableRollButton();
     } else {
       this.enableRollButton();
     }
@@ -151,19 +151,19 @@ class RollInterface extends SlottedInterface {
     }
   }
 
+  reroll() {
+    //This function is the callback of eventListener "click" added to rollButton.
+    changeCM(-this.currentRollCost);
+    clearTimeout(this.rollTimer);
+    this.roll();
+  }
+
   rollCountdown() {
     this.reduceRollCost();
     this.modifyRollButton();
     if (this.currentRollCost > 0) {
       this.rollTimer = window.setTimeout(this.rollCountdown.bind(this) , 1000/this.numFrames);
     }
-  }
-
-  reroll() {
-    //This function is the callback of eventListener "click" added to rollButton.
-    changeCM(-this.currentRollCost);
-    clearTimeout(this.rollTimer);
-    this.roll();
   }
 
   roll() {
@@ -182,11 +182,11 @@ class RollInterface extends SlottedInterface {
     if (tempReal < this.rollChanceLgnd) { // roll is within (0, 2.5)
       return "lgnd"
     } else if (tempReal >= this.rollChanceLgnd & (tempReal < (this.rollChanceLgnd + this.rollChanceEpic))) { // roll is within (2.5, 17.5)
-      return "epic"
+      return "epic";
     } else if ((tempReal >= (this.rollChanceLgnd + this.rollChanceEpic)) & (tempReal < (this.rollChanceLgnd + this.rollChanceEpic + this.rollChanceRare))) { // roll is within (17.5, 47.5)
-      return "rare"
+      return "rare";
     } else { // roll is within (47.5, 100)
-      return "cmmn"
+      return "cmmn";
     }
   }
 }
@@ -213,8 +213,9 @@ class HandInterface extends SlottedInterface {
 }
 
 class Slot {
-  constructor(parentHtmlObject, index, locX, locY){
-    this.index = index;
+  constructor(parentHtmlObject, locX, locY){
+    console.log(locX);
+    console.log(locY);
     this.locX = locX;
     this.locY = locY;
     this.parentHtmlObject = parentHtmlObject; // The table to which this slot belongs.
@@ -240,11 +241,11 @@ class Slot {
     var tempLineBreak = document.createElement("br")
     this.parentHtmlObject.appendChild(tempParagraph);
     tempParagraph.className = "infoBlocOject"
-    tempParagraph.textContent = ""
+    tempParagraph.textContent = "";
     tempParagraph.position = "absolute";
     tempParagraph.style.left = this.locX;
     tempParagraph.style.top = parseInt(this.locY, 10) + 55 + "px";
-    return tempParagraph
+    return tempParagraph;
   }
 
   reposition() {
@@ -273,10 +274,10 @@ class Slot {
     } else if (rarity === "epic") {
       tempInfoBloc = "Epic";
     } else if (rarity === "lgnd") {
-      tempInfoBloc = "Legendary"
+      tempInfoBloc = "Legendary";
     }
     tempInfoBloc = tempInfoBloc + " " + costCM + "CM";
-    return tempInfoBloc
+    return tempInfoBloc;
   }
 
   renderImage(whichImage) {
@@ -300,11 +301,10 @@ class Slot {
 
 class RollSlot extends Slot {
   // These slots are situtated in Available Buildings and their content can be bought.
-  constructor(parentHtmlObject, index, locX, locY){
-    super(parentHtmlObject, index, locX, locY);
+  constructor(parentHtmlObject, locX, locY){
+    super(parentHtmlObject, locX, locY);
     this.htmlObject.addEventListener("click", this.buyThisBuilding.bind(this));
   }
-
 
   buyThisBuilding() {
     if ((this.isActive === true) && (gameplayCM > this.contentObject.costCM) && (handInterface.availableSlots !== 0)){
@@ -318,8 +318,8 @@ class RollSlot extends Slot {
 
 class HandSlot extends Slot {
   // These slots were already purchased and their content can sold or
-  constructor(parentHtmlObject, index, locX, locY){
-    super(parentHtmlObject, index, locX, locY);
+  constructor(parentHtmlObject, locX, locY){
+    super(parentHtmlObject, locX, locY);
     this.htmlObject.addEventListener("click", this.sellThisBuilding.bind(this));
   }
 
@@ -406,7 +406,6 @@ var rollInterface = new RollInterface(document.getElementById("htmlRollInterface
 var handInterface = new HandInterface(document.getElementById("htmlHandInterface"), "Placeable Buildings", 530, 100);
 var gameplayCMhtmlObject = document.getElementById("tempInterface");
 
-
 function changeCM(whichAmount) {
   gameplayCM = gameplayCM + whichAmount;
   gameplayCMhtmlObject.textContent = "CM is " + gameplayCM + ".";
@@ -429,5 +428,3 @@ for (var indexRows = 0; indexRows < 10; indexRows++) {
     gridElement.style.left = (150 + 50 * indexColumns) + "px";
   }
 }
-
-// Have to change something for commit of test...
