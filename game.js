@@ -214,8 +214,6 @@ class HandInterface extends SlottedInterface {
 
 class Slot {
   constructor(parentHtmlObject, locX, locY){
-    console.log(locX);
-    console.log(locY);
     this.locX = locX;
     this.locY = locY;
     this.parentHtmlObject = parentHtmlObject; // The table to which this slot belongs.
